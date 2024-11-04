@@ -7,8 +7,10 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY requirements.txt .
 
+
+# specify compatibility with the --use-pep517 flag for python 3.9
 # Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --use-pep517 -r requirements.txt
 
 # Copy the entire application into the container
 COPY . .
@@ -17,4 +19,4 @@ COPY . .
 EXPOSE 8501
 
 # Command to run Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false", "--server.enableXsrfProtection=false"]
+CMD ["streamlit", "run", "app.py", "--server.port=8501"]

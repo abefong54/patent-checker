@@ -1,13 +1,13 @@
-# patent-
+# patent-checker
 
-Build the Docker Image: Open a terminal, navigate to the folder with your Dockerfile, and run:
+CREATE LOCAL ENV USING CONDA
+`conda create -n myenv python=3.11`
+`conda activate myenv`
+in conda env
+`pip install pandas`
+`pip install pandasai`
+`pip install pandasai[numpy]` to make sure you get numpy compatible with pandasai
 
-`docker build -t streamlit-app .`
-
-Run the Docker Container: After building the image, start the container with:
-
-`docker run -p 8501:8501 api`
-
-Access the App: Once the container is running, you can open your browser and go to:
-
-`http://localhost:8501`
+<!-- USEFUL LINKS
+https://python.langchain.com/docs/how_to/example_selectors/
+https://python.langchain.com/docs/how_to/structured_output/ -->
