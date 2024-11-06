@@ -2,6 +2,34 @@
 import pandas as pd
 import json
 import ast
+import uuid
+from datetime import datetime
+
+
+def create_report(patent_id, company, products): 
+    report_id = uuid.uuid4()
+    date = datetime.today().strftime('%Y-%m-%d')
+
+    format = '''
+        REPORT\n
+        Analysis ID: {}\n
+        Patent ID:  {}\n
+        Company Name: {}\n
+        Analysis Date: {}\n
+    '''.format(report_id,patent_id,company,date)
+
+    if products and len(products) > 0:
+        format += "\n\n TOP INFRINGING PRODUCTS \n"
+
+        for product in products:
+            format += '''
+                \nProduct Name: {}\n
+                Infringement Likelhood: {}\n
+                Relevant Claims: {}\n
+                Explanation: {}\n
+                Specific Features {}\n
+            '''.format(product['product_name'], product['likelihood'], product['relevant_claims'], product['explanation'],product['specific_features'])
+    return format
 
 
 def fetch_products():
@@ -18,34 +46,22 @@ def fetch_products():
     return products_df
 
 
+
 def fetch_patents():
     # Load the PATENTS JSON file
     with open('patents.json') as f:
         data = json.load(f)
 
-    # Normalize the JSON to flatten nested structures
-    df = pd.json_normalize(data)
+    df = pd.DataFrame(data)
 
-    # Convert the 'inventors' column from JSON string to list of dictionaries
-    df['inventors'] = df['inventors'].apply(ast.literal_eval)
+    # df['inventors'] = df['inventors'].apply(ast.literal_eval)
+    # df_exploded = df.explode('inventors')
+    # df = df_exploded
 
-    # Expand inventors into separate rows
-    inventors_df = df.explode('inventors')
 
-    # Reset the index of both DataFrames before concatenating
-    inventors_df = inventors_df.reset_index(drop=True)
-    df = df.reset_index(drop=True)
+    # df['claims'] = df['claims'].apply(ast.literal_eval)
+    # df_exploded = df.explode('claims')
+    # df = df_exploded
 
-    inventors_df = pd.concat([inventors_df.drop(columns=['inventors']),
-                            pd.json_normalize(inventors_df['inventors'])], axis=1)
-    # Group inventors by patent 'id' and aggregate as a list of dictionaries
-    inventors_grouped = inventors_df.groupby('id')[['first_name', 'last_name']].apply(lambda x: x.to_dict('records')).reset_index()
-
-    # Rename the column to indicate it's a list of inventors
-    inventors_grouped.columns = ['id', 'inventors']
-
-    # Merge this grouped data back into the main DataFrame 'df'
-    df = df.merge(inventors_grouped, on='id', how='left')
-    df.set_index('publication_number', inplace=True)
-    df = df.astype(str)
+    df = df.drop(['raw_source_url', 'image_urls', 'created_at', "updated_at", "landscapes", "provenance", "attachment_urls", "ai_summary", "raw_source_url", "priority_date", "application_events", "citations_non_patent" ], axis=1)
     return df

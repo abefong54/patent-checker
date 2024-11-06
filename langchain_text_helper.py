@@ -1,62 +1,53 @@
-# from langchain.document_loaders import YoutubeLoader
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
-# from langchain.llms import OpenAI
-# from langchain.embeddings.openai import OpenAIEmbeddings
-# from langchain.prompts import PromptTemplate
-# from langchain.chains import LLMChain
-# from langchain.vectorstores import FAISS # Library from META for efficient similarity search
-# # from dotenv import load_dotenv
-# import openai
-# import os
-# # load_env()
 
-# embeddings = OpenAIEmbeddings()
-# os.environ['OPENAI_API_KEY'] = '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'
-# query = "what is this data about?"
+import faiss
+import numpy as np
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+from uuid import uuid4
 
-# gpt_template = """
-#     You are a helpful research assistant that can help answer questions based on the transcript from two different texts. 
-#     Answer the following question: {question}  
-#     By searching the following text: {doc_one}
-#     and comparing with the following text: {doc_two}
+def generate_likelihood(similarity_score):
+    if similarity_score < 0.2:
+        likelihood = "High"
+    elif similarity_score < 0.5:
+        likelihood = "Medium"
+    else:
+        likelihood = "Low"
+    return likelihood 
 
-#     Only use the factual information from the texts to answer the question.
-#     If you dont feel like you have enough information to answer, say "I don't know."
-#     Your answers should be detailed. any lists you generate should be formatted with new line characters.
-# """
+def generate_report(patents, company_products):
+        patents['text'] = patents["publication_number"] + " : " + patents["description"] + " : " + patents["claims"]  + " : " + patents["abstract"]
+        company_products['text'] = company_products['product_name'] + " : " + company_products['description']
 
-# def create_similarity_embedding_db_from_text(text):
-#     # CREATE EMBEDDINGS TO TEST SIMILARITY SCORES
-#     return openai.embeddings.create(input = [text], model="text-embedding-ada-002").data[0].embedding
+        # Initialize the embedding model
+        embedding_model = OpenAIEmbeddings()
+
+        # Convert patent and app text to embeddings
+        patent_texts = patents["text"].tolist()
+        app_texts = company_products["text"].tolist()
 
 
+        # Embed patent and app texts
+        patent_embeddings = embedding_model.embed_documents(patent_texts)
+        app_embeddings = embedding_model.embed_documents(app_texts)
 
-# def create_vector_db_from_text(text: str) -> FAISS:
-#     # FAISS HELPS US DO THE SIMILARITY SEARCH
-#     db = FAISS.from_texts([text], embeddings)
-#     return db
+        # Initialize FAISS index with the embedding dimension
+        dimension = len(patent_embeddings[0])
+        faiss_index = faiss.IndexFlatL2(dimension)
 
-# def get_response_from_query_about_textfiles(file_dbs, user_query, k_similarity=4):
-#     # llm we chose, text-davinci, can handle 4097 tokens
-#     # k_similarity = since each document chunk is 1000, we can search roughly 4 documents, so our k should be set to 4
-#     # search the query relevant documents
-#     # what did they say about X in the video
-#     # the search will search only the document that is relevant to our query
-#     files_texts = []
-#     for file_db in file_dbs:    
-#         file_text = file_db.similarity_search(user_query, k_similarity)
-#         files_texts.append(file_text)
+        # Add app embeddings to FAISS
+        app_embedding_matrix = np.array(app_embeddings)
+        faiss_index.add(app_embedding_matrix)
 
+        # Set number of top matches to retrieve
+        top_k = 2
 
-#     llm = OpenAI(model="gpt-3.5-turbo-instruct")
-
-#     prompt = PromptTemplate(
-#         input_variables = ["query","doc_one", "doc_two"],
-#         template = gpt_template
-#     )
-
-#     chain = LLMChain(llm=llm, prompt=prompt)
-#     response = chain.run(question=user_query, doc_one=files_texts[0], doc_two=files_texts[1])
-#     # response = response.replace("\n", "")
-
-#     return response
+        # Iterate over each patent embedding
+        for i, patent_embedding in enumerate(patent_embeddings):
+            # Reshape patent embedding for searching
+            patent_embedding = np.array([patent_embedding])
+            
+            # Search for top 2 closest app embeddings
+            distances, indices = faiss_index.search(patent_embedding, top_k)
+            
+       
