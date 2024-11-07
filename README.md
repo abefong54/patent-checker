@@ -1,7 +1,7 @@
 # patent-checker
 
 This app creates a basic ui to input a patent publication id and a company name, and does a basic text similiarity search to confirm the most
-The app is live here: `https://fong-patent-checker.streamlit.app/`
+The app is live here:<br /> `https://fong-patent-checker.streamlit.app/`
 
 # LOCAL SET UP
 
