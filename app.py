@@ -13,6 +13,9 @@ st.write("Check if you patent is infringed upon.")
 
 top_k = 2
 report_count = 1
+key = ""
+if key != "":
+    os.environ["OPENAI_API_KEY"] = key
 
 def main():
     patents_df = dh.fetch_patents()
