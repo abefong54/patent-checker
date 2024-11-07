@@ -3,7 +3,8 @@
 This app creates a basic ui to input a patent publication id and a company name, and does a basic text similiarity search to confirm the most
 The app is live here: `https://fong-patent-checker.streamlit.app/`
 
-CREATE LOCAL ENV USING CONDA
+# CREATE LOCAL ENV USING CONDA
+
 `conda create -n myenv python=3.11`
 `conda activate myenv`
 in conda env:
