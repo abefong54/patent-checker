@@ -12,6 +12,7 @@ st.title("Patent Checker")
 st.write("Check if you patent is infringed upon.")
 
 top_k = 2
+report_count = 1
 
 def main():
     patents_df = dh.fetch_patents()
@@ -72,10 +73,11 @@ def generate_report(distances,indices,patents, company_products,patent_id,compan
 
     # Display report in Streamlit
     st.title("Patent Infringement Analysis Report")
-    st.write("Analysis ID:" )
+    st.write("Analysis ID:" + str(report_count))
     st.write("Analysis Date: " + datetime.today().strftime('%Y-%m-%d'))
     st.subheader("Patent: " + patent_id)
     st.subheader("Company: " + company , divider=True)
+    report_count+=1
 
     # Iterate over top matches and generate explanations
     for match in top_matches:
