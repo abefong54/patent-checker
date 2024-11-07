@@ -1,4 +1,10 @@
 streamlit>=1.8.0
 pandas
-pandasai
-tabulate
+openai
+datetime
+json
+streamlit
+os
+faiss
+numpy
+langchain_openai

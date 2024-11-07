@@ -11,3 +11,7 @@ in conda env
 <!-- USEFUL LINKS
 https://python.langchain.com/docs/how_to/example_selectors/
 https://python.langchain.com/docs/how_to/structured_output/ -->
+
+<!-- docker build -t patent_checker_app . -->
+
+<!-- docker run -p 8501:8501 patent_checker_app -->

@@ -1,53 +1,32 @@
 
-import faiss
-import numpy as np
-from langchain_community.docstore.in_memory import InMemoryDocstore
-from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
-from uuid import uuid4
+import openai
 
-def generate_likelihood(similarity_score):
-    if similarity_score < 0.2:
-        likelihood = "High"
-    elif similarity_score < 0.5:
-        likelihood = "Medium"
-    else:
-        likelihood = "Low"
-    return likelihood 
-
-def generate_report(patents, company_products):
-        patents['text'] = patents["publication_number"] + " : " + patents["description"] + " : " + patents["claims"]  + " : " + patents["abstract"]
-        company_products['text'] = company_products['product_name'] + " : " + company_products['description']
-
-        # Initialize the embedding model
-        embedding_model = OpenAIEmbeddings()
-
-        # Convert patent and app text to embeddings
-        patent_texts = patents["text"].tolist()
-        app_texts = company_products["text"].tolist()
+FORMAT = """ 
+[a short explanation as to why there is an infringment]
+\nRelevant Claims : [provide a list of claim numbers from the claims provided that were infringed upon, make sure the claim numbers all have the same formatting,remove all leading zeros if needed. return the number only]
+\nSpecific Features : provide a dotted list from the features given that cause the infringments
+"""
 
 
-        # Embed patent and app texts
-        patent_embeddings = embedding_model.embed_documents(patent_texts)
-        app_embeddings = embedding_model.embed_documents(app_texts)
+def llm_generate_infringement_explanation(patent_claims, patent_description, patent_abstract, app_features):
+    prompt = (
+        f"You are an expert in patent analysis. Given the following patent claims, description, and abstract:\n"
+        f"Claims: {patent_claims}\n"
+        f"Description: {patent_description}\n"
+        f"Abstract: {patent_abstract}\n\n"
+        f"And given the description of a product:\n"
+        f"Features: {app_features}\n\n"
+        f"Explain briefly why this product might be infringing on the patent claims and return your answer in the following format: {FORMAT}"
+    )
 
-        # Initialize FAISS index with the embedding dimension
-        dimension = len(patent_embeddings[0])
-        faiss_index = faiss.IndexFlatL2(dimension)
+    # Use openai.Chat.create to generate the response
+    response = openai.completions.create(
+        model="gpt-3.5-turbo-instruct",
+        prompt = prompt,
+        temperature = 0,
+        max_tokens=200,
+    )
+    
+    explanation = response.choices[0].text
+    return explanation
 
-        # Add app embeddings to FAISS
-        app_embedding_matrix = np.array(app_embeddings)
-        faiss_index.add(app_embedding_matrix)
-
-        # Set number of top matches to retrieve
-        top_k = 2
-
-        # Iterate over each patent embedding
-        for i, patent_embedding in enumerate(patent_embeddings):
-            # Reshape patent embedding for searching
-            patent_embedding = np.array([patent_embedding])
-            
-            # Search for top 2 closest app embeddings
-            distances, indices = faiss_index.search(patent_embedding, top_k)
-            
-       
