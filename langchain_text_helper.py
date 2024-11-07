@@ -2,6 +2,8 @@
 import openai
 
 FORMAT = """ 
+Analysis ID: [generate an id for this report]
+Date : add todays in YYYY-MM-DD format
 [a short explanation as to why there is an infringment]
 \nRelevant Claims : [provide a list of claim numbers from the claims provided that were infringed upon, make sure the claim numbers all have the same formatting,remove all leading zeros if needed. return the number only]
 \nSpecific Features : provide a dotted list from the features given that cause the infringments

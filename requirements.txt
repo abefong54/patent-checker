@@ -1,10 +1,6 @@
-streamlit>=1.8.0
 pandas
 openai
-datetime
-json
 streamlit
-os
-faiss
+faiss-cpu
 numpy
 langchain_openai

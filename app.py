@@ -1,5 +1,6 @@
 import streamlit as st
 import data_helper as dh
+from datetime import datetime
 import langchain_text_helper as lh
 import os
 import faiss
@@ -10,17 +11,11 @@ from langchain_openai import OpenAIEmbeddings
 st.title("Patent Checker")
 st.write("Check if you patent is infringed upon.")
 
-key = "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"
 top_k = 2
-
-# Define the chat input manually
-os.environ["OPENAI_API_KEY"] = key
 
 def main():
     patents_df = dh.fetch_patents()
     products_df = dh.fetch_products()
-
-
     create_form(patents_df, products_df)
 
 def create_text_embeddings_for_faiss(patent_id, company, patents_df, products_df):
@@ -77,9 +72,11 @@ def generate_report(distances,indices,patents, company_products,patent_id,compan
 
     # Display report in Streamlit
     st.title("Patent Infringement Analysis Report")
+    st.write("Analysis ID:" )
+    st.write("Analysis Date: " + datetime.today().strftime('%Y-%m-%d'))
     st.subheader("Patent: " + patent_id)
     st.subheader("Company: " + company , divider=True)
-    
+
     # Iterate over top matches and generate explanations
     for match in top_matches:
         app_name = match["app_name"]

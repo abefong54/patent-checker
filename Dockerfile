@@ -1,22 +1,15 @@
-# Use the official Python image as the base
-FROM python:3.9-slim
+FROM python:3.11-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container
 COPY requirements.txt .
 
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# specify compatibility with the --use-pep517 flag for python 3.9
-# Install the dependencies
-RUN pip install --no-cache-dir --use-pep517 -r requirements.txt
-
-# Copy the entire application into the container
 COPY . .
 
-# Expose the port Streamlit uses
+# STREAMLIT PORT
 EXPOSE 8501
 
-# Command to run Streamlit
 CMD ["streamlit", "run", "app.py", "--server.port=8501"]
