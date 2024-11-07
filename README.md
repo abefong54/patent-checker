@@ -3,15 +3,29 @@
 This app creates a basic ui to input a patent publication id and a company name, and does a basic text similiarity search to confirm the most
 The app is live here: `https://fong-patent-checker.streamlit.app/`
 
-# CREATE LOCAL ENV USING CONDA
+# LOCAL SET UP
+
+Install Conda
+
+Mac: https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html
+Windows: https://docs.conda.io/projects/conda/en/latest/user-guide/install/windows.html
+Linux: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
+
+Create a conda environment using terminal:
 
 `conda create -n myenv python=3.11`
 `conda activate myenv`
-in conda env:
+
+In the conda env install requirements:
+
 `pip install -r requirements.txt`
 
-and to view changes in localhost:8501 run:
+To view and test the app run:
 `streamlit run app.py`
+
+(if streamlit command not found, try adding it manually: `pip install streamlit`)
+
+You should see the app in your browser at : http://localhost:8501
 The easiest wayt o run
 
 # Docker Setup
