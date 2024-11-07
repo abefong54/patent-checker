@@ -12,8 +12,7 @@ st.title("Patent Checker")
 st.write("Check if you patent is infringed upon.")
 
 top_k = 2
-report_count = 1
-key = ""
+key=""
 if key != "":
     os.environ["OPENAI_API_KEY"] = key
 
@@ -76,11 +75,10 @@ def generate_report(distances,indices,patents, company_products,patent_id,compan
 
     # Display report in Streamlit
     st.title("Patent Infringement Analysis Report")
-    st.write("Analysis ID:" + str(report_count))
+    # st.write("Analysis ID:" + str(report_count))
     st.write("Analysis Date: " + datetime.today().strftime('%Y-%m-%d'))
     st.subheader("Patent: " + patent_id)
     st.subheader("Company: " + company , divider=True)
-    report_count+=1
 
     # Iterate over top matches and generate explanations
     for match in top_matches:
